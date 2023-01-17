@@ -10,6 +10,7 @@ setup(
     install_requires=[
         'sqlalchemy',
         'pymysql',
+        'pandas>=1.3.3'
     ],
 )
 

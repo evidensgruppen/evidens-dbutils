@@ -1,14 +1,13 @@
 import pandas as pd
 from typing import Union
 
-from .connection import gen_mysql_connection, gen_postgresql_engine
+from .connection import gen_mysql_connection
 
 #FIXME - I nuläget fungerar inte uppladdning till postgres
 def ladda_upp(
     df      : pd.DataFrame, 
     tabell  : str, 
     databas : str,
-    server  : str='mysql',
     schema  : Union[dict, None]=None
 ) -> None:
     ''' Laddar upp df till vald databas. Uppladdning bygger i hög grad på pandas to_sql()-funktion. Vissa tillägg har
@@ -19,23 +18,11 @@ def ladda_upp(
             df      : Dataframe som ska laddas upp
             tabell  : Namn på tabell som ska genereras 
             databas : Namn på databas/schema
-            server  : Den server på vilken databasen ligger/ska ligga
             schema  : Datatyper för kolumnerna i df
     '''
 
-    # Tillåtna servrar och korresponderande anslutningsfunktioner
-    _servers = {
-        'mysql'    : gen_mysql_connection, 
-        'postgres' : gen_postgresql_engine
-    }
-
-    # Se till att argumentet "server" har ett tillåtet värde 
-    if server not in _servers:
-        raise ValueError('Argument "server" måste vara antingen "{0}" eller "{1}"'.format(*_servers.keys()))
-
-    # Anslut till vald server
-    _con_fun = _servers[server]
-    con      = _con_fun(databas)
+    # Anslut till databas
+    con = gen_mysql_connection(databas)
 
     # Se till att indexkolumn har unika värden
     df = df.reset_index(drop=True)
