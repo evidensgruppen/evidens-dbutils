@@ -52,7 +52,7 @@ def gen_postgresql_engine(databas : str='postgres'):
 
         Parametrar:
             databas : Aktuell databas/schema på PostgreSQL-Server. I nuläget har vi bara 
-                      en databas på Posrgres-servern med namn "postgres"
+                      en databas på Postgres-servern med namn "postgres"
 
         Returns:
             sqlalchemy.engine.base.Engine  
