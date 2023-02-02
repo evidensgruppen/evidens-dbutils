@@ -14,7 +14,7 @@ def ladda_upp(
     ''' Laddar upp df till vald databas. Uppladdning bygger i hög grad på pandas to_sql()-funktion. Vissa tillägg har
         gjorts för att passa våra behov, bl.a. laddas data inte direkt upp till tabellen "tabell" utan först till 
         "tabell_tmp". Detta för att eventuella befintliga tabeller inte ska ligga ner under uppladdningstiden. Notera
-        att funktionen ersätter eventuellt redan existerande tabell med namnet som specificeras i "tabell".
+        att funktionen ersätter eventuellt redan existerande tabell med samma namn.
 
         Argument:
             df      : Dataframe som ska laddas upp
@@ -53,9 +53,8 @@ def ladda_upp(
     # Ersätt befintlig tabell med den data som just laddades upp till "tmp_tabell"
     con.execute(f'DROP TABLE IF EXISTS {tabell}')
     con.execute(f'ALTER TABLE {tmp_tabell} RENAME TO {tabell}')
-    
-    print(f'\nTabell "{tabell}" uppdaterad')
 
+    print(f'\nTabell "{tabell}" uppdaterad')
 
 
 
@@ -69,7 +68,7 @@ def bulkuppladdning(
     ''' Snabb uppladdning av stora dataset genom uppladdning av textfil. Data i 
         df sparas först lokalt i temporär textfil som sedan kan laddas upp genom 
         MySQL-kommandot "LOAD DATA LOCAL INFILE ...". Notera att funktionen ersätter 
-        eventuellt redan existerande tabell med namnet som specificeras i "tabell".
+        eventuellt redan existerande tabell med samma namn.
 
         Argument:
             df      : Dataframe som ska laddas upp
@@ -100,8 +99,8 @@ def bulkuppladdning(
     tmp_tabell = tabell + '_tmp'
 
     # Skapar tom tabell med rätt kolumnnamn och datatyper
-    head = df.head(0).copy()
-    head.to_sql(tmp_tabell, con, if_exists='replace', dtype=dtypes, index_label='id')
+    head_ = df.head(0).copy()
+    head_.to_sql(tmp_tabell, con, if_exists='replace', dtype=dtypes, index_label='id')
 
     # Spara df till temporär textfil, sätt Nans till 'NULL' i exporterad fil för att inte få 
     # nollor i float-kolumner där värden saknas
