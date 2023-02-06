@@ -30,7 +30,7 @@ def ladda_upp(
     df = df.reset_index(drop=True)
 
     # Ta bort tmp-tabell ifall sådan finns
-    tmp_tabell = tabell + '_tmp'
+    tmp_tabell = tabell + '_uppladdning_tmp'
     con.execute(f'DROP TABLE IF EXISTS {tmp_tabell}')
 
     # Parametrar för uppladdning
@@ -43,7 +43,8 @@ def ladda_upp(
     sql_params['index_label'] = 'id'
 
     if dtypes is not None:
-        # Om datatyper specificerats används keys för att se till att kolumnerna i df kommer i rätt ordning
+        # Om datatyper specificerats används keys för att se till att kolumnerna 
+        # i df kommer i rätt ordning
         df = df[list(dtypes.keys())]
         sql_params['dtype'] = dtypes
 
@@ -96,7 +97,7 @@ def bulkuppladdning(
         df = df[list(dtypes.keys())]
 
     # Ladda upp data till en temporär tabell
-    tmp_tabell = tabell + '_tmp'
+    tmp_tabell = tabell + '_bulkuppladdning_tmp'
 
     # Skapar tom tabell med rätt kolumnnamn och datatyper
     head_ = df.head(0).copy()
