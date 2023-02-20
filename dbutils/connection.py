@@ -73,26 +73,26 @@ def gen_postgresql_connection(databas : str='postgres'):
     return engine.connect()
 
 
-#FIXME - TA BORT? Lär inte ha några behov av en Engine, sannolikt är Connection allt som behövs
-def gen_postgresql_engine(databas : str='postgres'):
-    ''' Skapa koppling mot PostgreSQL-databas.
+# #FIXME - TA BORT? Lär inte ha några behov av en Engine, sannolikt är Connection allt som behövs
+# def gen_postgresql_engine(databas : str='postgres'):
+#     ''' Skapa koppling mot PostgreSQL-databas.
 
-        Parametrar:
-            databas : Aktuell databas/schema på PostgreSQL-Server. I nuläget har vi bara 
-                      en databas på Postgres-servern med namn "postgres"
+#         Parametrar:
+#             databas : Aktuell databas/schema på PostgreSQL-Server. I nuläget har vi bara 
+#                       en databas på Postgres-servern med namn "postgres"
 
-        Returns:
-            sqlalchemy.engine.base.Engine  
-    '''
+#         Returns:
+#             sqlalchemy.engine.base.Engine  
+#     '''
 
-    miljövariabler = ['PG_USR', 'PG_PWD', 'PG_HOST']
+#     miljövariabler = ['PG_USR', 'PG_PWD', 'PG_HOST']
 
-    vars = _ladda_variabler(databas, miljövariabler)
+#     vars = _ladda_variabler(databas, miljövariabler)
 
-    db_uri = "postgresql://{PG_USR}:{PG_PWD}@{PG_HOST}:5432/{DB}".format(**vars)
-    engine = sqlalchemy.create_engine(db_uri)  
+#     db_uri = "postgresql://{PG_USR}:{PG_PWD}@{PG_HOST}:5432/{DB}".format(**vars)
+#     engine = sqlalchemy.create_engine(db_uri)  
 
-    return engine
+#     return engine
 
 
 
