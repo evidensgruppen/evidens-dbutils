@@ -4,6 +4,13 @@ import pandas as pd
 
 from .connection import gen_mysql_connection
 
+
+def _undersök_mellanslag(tabell : str) -> None:
+    ''' Ser till att givet tabellnamn inte innehåller några mellanslag. '''
+    if ' ' in tabell:
+        raise ValueError('Angivet tabellnamn innehåller mellanslag, vänligen ersätt dessa med tex. "_"')
+    
+
 #FIXME - I nuläget fungerar inte uppladdning till postgres
 def ladda_upp(
     df      : pd.DataFrame, 
@@ -11,7 +18,7 @@ def ladda_upp(
     databas : str,
     dtypes  : Union[dict, None]=None
 ) -> None:
-    ''' Laddar upp df till vald databas. Uppladdning bygger i hög grad på pandas to_sql()-funktion. Vissa tillägg har
+    ''' Laddar upp df till vald databas. Uppladdning bygger i hög grad på Pandas to_sql()-funktion. Vissa tillägg har
         gjorts för att passa våra behov, bl.a. laddas data inte direkt upp till tabellen "tabell" utan först till 
         "tabell_tmp". Detta för att eventuella befintliga tabeller inte ska ligga ner under uppladdningstiden. Notera
         att funktionen ersätter eventuellt redan existerande tabell med samma namn.
@@ -22,6 +29,8 @@ def ladda_upp(
             databas : Namn på databas/schema
             dtypes  : Datatyper för kolumnerna i df
     '''
+
+    _undersök_mellanslag(tabell)
 
     # Anslut till databas
     con = gen_mysql_connection(databas)
@@ -66,10 +75,10 @@ def bulkuppladdning(
     databas : str,
     dtypes  : Union[dict, None]=None
 ) -> None:
-    ''' Snabb uppladdning av stora dataset genom uppladdning av textfil. Data i 
-        df sparas först lokalt i temporär textfil som sedan kan laddas upp genom 
-        MySQL-kommandot "LOAD DATA LOCAL INFILE ...". Notera att funktionen ersätter 
-        eventuellt redan existerande tabell med samma namn.
+    ''' Snabb uppladdning av stora dataset till MySQL-server genom uppladdning av textfil. Data i 
+        df sparas först lokalt i temporär textfil som sedan kan laddas upp genom MySQL-kommandot 
+        "LOAD DATA LOCAL INFILE ...". Notera att funktionen ersätter eventuellt redan existerande 
+        tabell med samma namn.
 
         Argument:
             df      : Dataframe som ska laddas upp
@@ -77,12 +86,14 @@ def bulkuppladdning(
             databas : Namn på databas/schema
             dtypes  : Datatyper för kolumnerna i df
     '''
+
+    _undersök_mellanslag(tabell)
     
     # Skapa databaskoppling
     con = gen_mysql_connection(databas)
 
     # Namn på temporär textfil som ska laddas upp till databas
-    fil = 'tmp.txt'
+    fil = 'tmpfil_uppladdning.txt'
 
     # Default os.linesep är '\n' för Linux och '\r\n' för Windows, line_terminator måste 
     # därför specificeras för at uppladdning ska fungera för båda systemen
