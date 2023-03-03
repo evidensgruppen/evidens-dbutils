@@ -5,19 +5,12 @@ import pandas as pd
 from .connection import gen_mysql_connection
 
 
-# def _undersök_mellanslag(tabell : str) -> None:
-#     ''' Ser till att givet tabellnamn inte innehåller några mellanslag. '''
-#     if ' ' in tabell:
-#         raise ValueError('Angivet tabellnamn innehåller mellanslag, vänligen ersätt dessa med tex. "_"')
-
-
 def _verifiera_tabellnamn(tabell : str) -> None:
     ''' Kollar efter potentiella problem med angivet tabellnamn '''
 
     # Ser till att givet tabellnamn inte innehåller fler än 64 tecken
     if len(tabell)>64:
         raise ValueError(f'Angivet tabellnamn består av {len(tabell)} tecken, maximal längd är 64 tecken')
-
 
     # Ser till att givet tabellnamn inte innehåller några mellanslag
     if ' ' in tabell:
@@ -44,7 +37,6 @@ def ladda_upp(
             dtypes  : Datatyper för kolumnerna i df
     '''
 
-    # _undersök_mellanslag(tabell)
     _verifiera_tabellnamn(tabell)
     
     # Anslut till databas
@@ -53,9 +45,10 @@ def ladda_upp(
     # Se till att indexkolumn har unika värden
     df = df.reset_index(drop=True)
 
-    # Ta bort tmp-tabell ifall sådan finns
-    # tmp_tabell = tabell + '_uppladdning_tmp'
+    # Skär av namn på temporär tabell för att inte detta ska bli för långt
     tmp_tabell = tabell[:40] + '_uppladdning_tmp'
+
+    # Ta bort tmp-tabell ifall sådan finns
     con.execute(f'DROP TABLE IF EXISTS {tmp_tabell}')
 
     # Parametrar för uppladdning
@@ -103,8 +96,6 @@ def bulkuppladdning(
             dtypes  : Datatyper för kolumnerna i df
     '''
 
-
-    # _undersök_mellanslag(tabell)
     _verifiera_tabellnamn(tabell)
     
     # Skapa databaskoppling
@@ -125,8 +116,7 @@ def bulkuppladdning(
         # Se till att kolumner i df har samma ordning som tabell (specificeras i schema)
         df = df[list(dtypes.keys())]
 
-    # Ladda upp data till en temporär tabell
-    # tmp_tabell = tabell + '_bulkuppladdning_tmp'
+    # Ladda upp data till en temporär tabell, skär av namn på temporär tabell för att inte detta ska bli för långt
     tmp_tabell = tabell[:40] + '_bulkuppladdning_tmp'
 
     # Skapar tom tabell med rätt kolumnnamn och datatyper
