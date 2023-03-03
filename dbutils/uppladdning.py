@@ -5,11 +5,25 @@ import pandas as pd
 from .connection import gen_mysql_connection
 
 
-def _undersök_mellanslag(tabell : str) -> None:
-    ''' Ser till att givet tabellnamn inte innehåller några mellanslag. '''
+# def _undersök_mellanslag(tabell : str) -> None:
+#     ''' Ser till att givet tabellnamn inte innehåller några mellanslag. '''
+#     if ' ' in tabell:
+#         raise ValueError('Angivet tabellnamn innehåller mellanslag, vänligen ersätt dessa med tex. "_"')
+
+
+def _verifiera_tabellnamn(tabell : str) -> None:
+    ''' Kollar efter potentiella problem med angivet tabellnamn '''
+
+    # Ser till att givet tabellnamn inte innehåller fler än 64 tecken
+    if len(tabell)>64:
+        raise ValueError(f'Angivet tabellnamn består av {len(tabell)} tecken, maximal längd är 64 tecken')
+
+
+    # Ser till att givet tabellnamn inte innehåller några mellanslag
     if ' ' in tabell:
         raise ValueError('Angivet tabellnamn innehåller mellanslag, vänligen ersätt dessa med tex. "_"')
-    
+
+
 
 #FIXME - I nuläget fungerar inte uppladdning till postgres
 def ladda_upp(
@@ -30,8 +44,9 @@ def ladda_upp(
             dtypes  : Datatyper för kolumnerna i df
     '''
 
-    _undersök_mellanslag(tabell)
-
+    # _undersök_mellanslag(tabell)
+    _verifiera_tabellnamn(tabell)
+    
     # Anslut till databas
     con = gen_mysql_connection(databas)
 
@@ -39,7 +54,8 @@ def ladda_upp(
     df = df.reset_index(drop=True)
 
     # Ta bort tmp-tabell ifall sådan finns
-    tmp_tabell = tabell + '_uppladdning_tmp'
+    # tmp_tabell = tabell + '_uppladdning_tmp'
+    tmp_tabell = tabell[:40] + '_uppladdning_tmp'
     con.execute(f'DROP TABLE IF EXISTS {tmp_tabell}')
 
     # Parametrar för uppladdning
@@ -87,7 +103,9 @@ def bulkuppladdning(
             dtypes  : Datatyper för kolumnerna i df
     '''
 
-    _undersök_mellanslag(tabell)
+
+    # _undersök_mellanslag(tabell)
+    _verifiera_tabellnamn(tabell)
     
     # Skapa databaskoppling
     con = gen_mysql_connection(databas)
@@ -108,7 +126,8 @@ def bulkuppladdning(
         df = df[list(dtypes.keys())]
 
     # Ladda upp data till en temporär tabell
-    tmp_tabell = tabell + '_bulkuppladdning_tmp'
+    # tmp_tabell = tabell + '_bulkuppladdning_tmp'
+    tmp_tabell = tabell[:40] + '_bulkuppladdning_tmp'
 
     # Skapar tom tabell med rätt kolumnnamn och datatyper
     head_ = df.head(0).copy()
